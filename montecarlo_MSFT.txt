@@ -1,0 +1,41 @@
+================================================================================
+MONTE CARLO SIMULATION (BOOTSTRAPPED GJR-GARCH)
+================================================================================
+
+Rapport skapad: 2026-05-21 17:03
+Ticker: MSFT
+Position: LONG
+Method: Filtered Historical Simulation (GJR-GARCH, Student-t, Log Returns)
+Last Close: 421.06
+Start Price: 421.06
+Target Price: 450.53
+Simulation Days: 20
+Paths: 5,000
+Stop-Loss: 399.23 (5%)
+Trailing Stop: Yes (5%)
+GARCH Fit Window: 1350 dagar (full historik)
+
+--------------------------------------------------------------------------------
+STATISTICS
+--------------------------------------------------------------------------------
+Mean Final Price: 424.95
+Median Exit (winners): 445.23
+Median Exit (losers):  401.52
+Probability > Target (451): 19.94%
+Win Rate: 47.1%
+Payoff Ratio: 1.24 (Break-even win rate: 44.7%)
+Expected Value (EV): +1.06 (+0.25%)
+Half Kelly: 2.19%
+Stopped paths: 58.2% (avg day 10.2)
+  Fixed stop-loss: 13.4% (förlust)
+  Trailing stop:   44.8% (20.6% vinst, 79.4% förlust)
+
+--------------------------------------------------------------------------------
+MODEL DIAGNOSTICS
+--------------------------------------------------------------------------------
+Persistence (α+γ/2+β):  0.991  ✓
+Ljung-Box(20) p:    0.958  ✓
+ARCH-LM(10) p:      0.995  ✓
+Model status:       OK
+
+================================================================================
