@@ -132,7 +132,7 @@ def diagnose_garch(std_resid, alpha, gamma, beta):
 
     warnings = []
     if persistence >= 1.0:
-        warnings.append(f"Persistence α+β={persistence:.3f} ≥ 1 — icke-stationär variansprocess")
+        warnings.append(f"Persistence α+γ/2+β={persistence:.3f} ≥ 1 — icke-stationär variansprocess")
     if lb_pvalue < 0.05:
         warnings.append(f"Ljung-Box p={lb_pvalue:.3f} — kvarvarande ARCH-effekter")
     if arch_pvalue < 0.05:
@@ -357,7 +357,7 @@ def save_report(ticker, stock_name, last_close, start_price, target_price,
         f.write("-" * 80 + "\n")
         f.write("MODEL DIAGNOSTICS\n")
         f.write("-" * 80 + "\n")
-        f.write(f"Persistence (α+β):  {diagnostics['persistence']:.3f}  {pers_ok}\n")
+        f.write(f"Persistence (α+γ/2+β):  {diagnostics['persistence']:.3f}  {pers_ok}\n")
         f.write(f"Ljung-Box(20) p:    {diagnostics['lb_pvalue']:.3f}  {lb_ok}\n")
         f.write(f"ARCH-LM(10) p:      {diagnostics['arch_pvalue']:.3f}  {arch_ok}\n")
         f.write(f"Model status:       {'OK' if diagnostics['passed'] else 'VARNING — se detaljer'}\n")
