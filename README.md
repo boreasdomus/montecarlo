@@ -7,7 +7,7 @@ Simulerar framtida prisbanor för att utvärdera en swing-trade (lång eller kor
 Skriptet kör 5 000 simuleringar över 20 handelsdagar för att besvara:
 - Vad är det förväntade utfallet (EV) för denna trade?
 - Hur ofta vinner/förlorar strategin?
-- Är risk/reward tillräcklig för att vara lönsam?
+- Är payoff ratio tillräcklig för att vara lönsam?
 
 ## Metodik
 
@@ -50,8 +50,8 @@ Riktningen på stop-logiken beror på positionstyp:
 |------|----------|
 | **EV (Expected Value)** | Genomsnittlig vinst/förlust per trade. Positivt = statistisk edge. |
 | **Win Rate** | Andel lönsamma trades. Trendföljande strategier har ofta 35–45%. |
-| **Risk/Reward** | Medianvinst / Medianförlust (PnL). Median valt över medel för att inte låta en handfull fat-tail-utfall blåsa upp R/R. Kompenserar låg win rate om R/R > 1.5. |
-| **Break-even win rate** | Minsta win rate för att gå ±0, givet R/R: `1 / (1 + R/R)` |
+| **Payoff Ratio** | Medianvinst / Medianförlust (PnL) över alla simulerade paths. Median valt över medel för att inte låta en handfull fat-tail-utfall blåsa upp ration. Kompenserar låg win rate om Payoff > 1.5. Skiljs från "R/R" i `levels.py`, som baseras på faktisk target/stop från S/R-nivåer — Payoff Ratio kommer ur fördelningen, inte en pre-trade plan. |
+| **Break-even win rate** | Minsta win rate för att gå ±0, givet payoff: `1 / (1 + Payoff)` |
 | **Half Kelly** | Konservativ positionsstorlek = 50% av Kelly = `0.5 × (win_rate × odds − loss_rate) / odds`, där `odds = medianvinst / abs(medianförlust)`. |
 | **Median Exit (winners)** | Typisk exitnivå vid vinst — användbart som kursmål/target. |
 | **Median Exit (losers)** | Typisk exitnivå vid förlust — visar var stopparna biter. |
@@ -73,14 +73,12 @@ Det viktiga: Median Exit (winners), det är där typiska vinnande paths toppar i
 En strategi är lönsam om `Win Rate > Break-even Win Rate`, där:
 
 ```
-Break-even = 1 / (1 + R/R)
+Break-even = 1 / (1 + Payoff Ratio)
 ```
 
-Exempel: R/R = 1.8 → `1 / (1 + 1.8) = 35.7%`. Om din win rate är 42% har du en edge på 6.3 procentenheter.
+Exempel: Payoff = 1.8 → `1 / (1 + 1.8) = 35.7%`. Om din win rate är 42% har du en edge på 6.3 procentenheter.
 
 ## Grafen
-
-![Simulation IONQ](montecarlo_IONQ.png)
 
 Grafen består av tre paneler:
 
