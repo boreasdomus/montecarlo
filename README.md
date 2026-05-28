@@ -48,7 +48,7 @@ Riktningen på stop-logiken beror på positionstyp:
 
 | Mått | Tolkning |
 |------|----------|
-| **EV (Expected Value)** | Genomsnittlig vinst/förlust per trade. Positivt = statistisk edge. |
+| **EV (Expected Value)** | Genomsnittlig (medel) vinst/förlust per trade över alla paths. Positivt = statistisk edge. Använder medel — inte median som payoff ratio — eftersom de få stora vinsterna i högersvansen är just det som ger edgen för trendföljande strategier. |
 | **Win Rate** | Andel lönsamma trades. Trendföljande strategier har ofta 35–45%. |
 | **Payoff Ratio** | Medianvinst / Medianförlust (PnL) över alla simulerade paths. Median valt över medel för att inte låta en handfull fat-tail-utfall blåsa upp ration. Kompenserar låg win rate om Payoff > 1.5. Skiljs från "R/R" i `levels.py`, som baseras på faktisk target/stop från S/R-nivåer — Payoff Ratio kommer ur fördelningen, inte en pre-trade plan.|
 | **Break-even win rate** | Minsta win rate för att gå ±0, givet payoff: `1 / (1 + Payoff)` |
@@ -80,7 +80,6 @@ Exempel: Payoff = 1.8 → `1 / (1 + 1.8) = 35.7%`. Om din win rate är 42% har d
 
 ## Grafen
 
-![Montecarlo MSFT](montecarlo_MSFT.png)
 Grafen består av tre paneler:
 
 ### Huvudpanel (uppe till vänster) — prisbanor
@@ -202,8 +201,8 @@ Default fittas GARCH på hela CSV-historiken. För aktier som nyligen bytt regim
 `--lookback N` trimmar serien till de senaste N handelsdagarna innan fit. Riktlinjer:
 
 - **N ≥ 200** — säker zon, GARCH-stationaritet brukar hålla
-- **N = 100–200** — ofta OK men kontrollera att Persistence (α+β) < 1.0 i diagnostiken
-- **N < 100** — riskabelt, GARCH blir lätt icke-stationär (α+β ≈ 1.0) och resultaten exploderar; varningen i diagnostiken fångar detta
+- **N = 100–200** — ofta OK men kontrollera att Persistence (α+γ/2+β) < 1.0 i diagnostiken
+- **N < 100** — riskabelt, GARCH blir lätt icke-stationär (α+γ/2+β ≈ 1.0) och resultaten exploderar; varningen i diagnostiken fångar detta
 
 Modelldiagnostiken i rapporten är ditt skyddsnät — om Persistence ≥ 1.0 eller Ljung-Box/ARCH-LM faller, öka lookback eller kör utan flaggan.
 
