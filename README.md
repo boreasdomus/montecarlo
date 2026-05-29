@@ -33,7 +33,7 @@ Varje simulerad bana avslutas om:
 1. **Stop-loss** — priset passerar en fast nivå (default: 2×ATR(14) från start)
 2. **Trailing stop** — priset passerar en rörlig nivå som följer extrempunkter (default: 2×ATR(14))
 
-Stop-storlek skalar med tickerns volatilitet så att tight stops inte slår ut normala dagliga rörelser. Overrides: `NxATR` (t.ex. `1.5xatr`), procent (`0.03`), eller absolut pris (t.ex. `23500`). Detta matchar `summary.py` som också använder 2×ATR för stop-sizing.
+Stop-storlek skalar med tickerns volatilitet så att tight stops inte slår ut normala dagliga rörelser. Overrides: `NxATR` (t.ex. `1.5xatr`), procent (`0.03`), eller absolut pris (t.ex. `23500`). Detta matchar `summary.py` som också använder 2×ATR för stop-sizing. Saknas OHLC (ingen ATR kan beräknas) faller en `NxATR`-stop tillbaka till 3% med en varning.
 
 Riktningen på stop-logiken beror på positionstyp:
 
@@ -52,11 +52,11 @@ Riktningen på stop-logiken beror på positionstyp:
 | **Win Rate** | Andel lönsamma trades. Trendföljande strategier har ofta 35–45%. |
 | **Payoff Ratio** | Medianvinst / Medianförlust (PnL) över alla simulerade paths. Median valt över medel för att inte låta en handfull fat-tail-utfall blåsa upp ration. Kompenserar låg win rate om Payoff > 1.5. Skiljs från "R/R" i `levels.py`, som baseras på faktisk target/stop från S/R-nivåer — Payoff Ratio kommer ur fördelningen, inte en pre-trade plan.|
 | **Break-even win rate** | Minsta win rate för att gå ±0, givet payoff: `1 / (1 + Payoff)` |
-| **Half Kelly** | Konservativ positionsstorlek = 50% av Kelly = `0.5 × (win_rate × payoff − loss_rate) / payoff`, där `payoff` = Payoff Ratio ovan. |
+| **Half Kelly** | Konservativ positionsstorlek = 50% av Kelly = `0.5 × (win_rate × payoff − loss_rate) / payoff`, där `payoff` = Payoff Ratio ovan. Notera att payoff är *median*-baserad: för rena fat-tail-strategier (edge ligger i högersvansen) kan Half Kelly därför läsa lågt eller noll trots positivt EV. Läs den alltid ihop med EV — inte isolerat. |
 | **Median Exit (winners)** | Typisk exitnivå vid vinst — användbart som kursmål/target. |
 | **Median Exit (losers)** | Typisk exitnivå vid förlust — visar var stopparna biter. |
 | **Target Price** | Ingångsparameter, inte en prediktion. Default: +7% (lång) / -7% (kort) från start. |
-| **P(≥ Target) / P(≤ Target)** | Sannolikhet att nå målpriset (riktning beror på lång/kort). |
+| **P(≥ Target) / P(≤ Target)** | Sannolikhet att *slutpriset* (sista dagen) ligger bortom målet, mätt över **alla** paths inkl. de som stoppats ut tidigare (frysta vid sin exitkurs). Detta är en **terminalsannolikhet** — inte chansen att priset någonsin *vidrör* målet. En bana som toppar över målet men trailar ut under det räknas alltså som "nådde inte", så måttet underskattar touch-sannolikheten. |
 | **Stopped paths** | Andel simuleringar som träffade stop-loss eller trailing stop. |
 
 ### Median Exit (winners) som target price
@@ -189,6 +189,9 @@ python montecarlo.py ERIC-B.ST --short --target 60 --stop-loss 0.04
 
 # Reproducerbar körning med fast seed
 python montecarlo.py EQT.ST --seed 42
+
+# Fler paths för stabilare svans-percentiler (default 5000), annan datakatalog
+python montecarlo.py EQT.ST --paths 20000 --data-dir data
 
 # Begränsa GARCH-fit till senaste N handelsdagar (default: hela historiken)
 python montecarlo.py SIVE.ST --lookback 250
