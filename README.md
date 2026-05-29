@@ -168,34 +168,32 @@ Om ett test misslyckas visas en varning (⚠) i rapporten. Simuleringsresultaten
 
 ## Användning
 
-```bash
-# Standardkörning: 20 dagar, 2×ATR stop-loss, 2×ATR trailing (lång position)
-python montecarlo.py EQT.ST
+```
+usage: montecarlo.py [-h] [--data-dir DATA_DIR] [--start-price START_PRICE] [--days DAYS] [--paths PATHS] [--target TARGET] [--stop-loss STOP_LOSS]
+                     [--trailing-stop TRAILING_STOP] [--no-trailing] [--short] [--seed SEED] [--lookback LOOKBACK]
+                     ticker
 
-# Annan aktie med custom parametrar (procent eller ATR-multipel)
-python montecarlo.py VOLV-B.ST --days 30 --stop-loss 0.05 --trailing-stop 0.04
-python montecarlo.py VOLV-B.ST --stop-loss 1.5xatr --trailing-stop 3xatr
+Monte Carlo Simulation with GARCH
 
-# Fast stop utan trailing
-python montecarlo.py ASSA-B.ST --no-trailing
+positional arguments:
+  ticker                Ticker symbol
 
-# Specifik ingångskurs och målkurs
-python montecarlo.py SAND.ST --start-price 250 --target 280
-
-# Kort position (short) — inverterad stop/target-logik
-python montecarlo.py VOLV-B.ST --short
-
-# Kort position med specifikt målpris
-python montecarlo.py ERIC-B.ST --short --target 60 --stop-loss 0.04
-
-# Reproducerbar körning med fast seed
-python montecarlo.py EQT.ST --seed 42
-
-# Fler paths för stabilare svans-percentiler (default 5000), annan datakatalog
-python montecarlo.py EQT.ST --paths 20000 --data-dir data
-
-# Begränsa GARCH-fit till senaste N handelsdagar (default: hela historiken)
-python montecarlo.py SIVE.ST --lookback 250
+options:
+  -h, --help            show this help message and exit
+  --data-dir DATA_DIR   Data directory (default: data)
+  --start-price START_PRICE
+                        Starting price for simulation (default: last close)
+  --days DAYS           Simulation days (default: 20)
+  --paths PATHS         Number of simulation paths (default: 5000)
+  --target TARGET       Target price for probability calc (default: start + 7%)
+  --stop-loss STOP_LOSS
+                        Stop-loss: ATR-multiple (e.g. '2xatr'), percentage (e.g. 0.03 = 3%) or absolute price (e.g. 379). Default: 2xatr
+  --trailing-stop TRAILING_STOP
+                        Trailing stop: ATR-multiple (e.g. '2xatr') or percentage (e.g. 0.03). 0 to disable. Default: 2xatr
+  --no-trailing         Disable trailing stop
+  --short               Simulate a short position (inverted stops and target)
+  --seed SEED           Random seed for reproducibility (default: none)
+  --lookback LOOKBACK   Antal senaste handelsdagar att fitta GARCH på (default: hela historiken)
 ```
 
 ### `--lookback` — när och varför
