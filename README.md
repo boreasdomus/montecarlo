@@ -61,12 +61,9 @@ Riktningen på stop-logiken beror på positionstyp:
 
 ### Median Exit (winners) som target price
 
-Av de tillgängliga måtten är **Median Exit (winners)** det bästa att använda som kursmål/target price:
+Av de tillgängliga måtten är **Median Exit (winners)** det bästa kursmålet: det filtrerar bort förlorande simuleringar och ger mittpunkten av de banor som faktiskt gick rätt väg — där typiska vinnande paths toppar innan trailing stop slår till. **Mean Final Price** dras däremot upp av enstaka extrema banor (feta svansar) och ger ett för optimistiskt mål.
 
-- **Mean Final Price** dras upp av enstaka extrema simuleringar (feta svansar). Det ger ett mål som ser mer optimistiskt ut än vad majoriteten av utfallen faktiskt levererar.
-- **Median Exit (winners)** filtrerar bort förlorande simuleringar och ger mittpunkten av de banor som faktiskt gick rätt väg — ett realistiskt mål för en lyckad trade.
-
-Det viktiga: Median Exit (winners), det är där typiska vinnande paths toppar innan trailing stop slår till. Att sätta target vid denna nivå betyder att du plockar ut ~max av fördelningen — varje krona därutöver är extremt dyrköpt sannolikhetsmässigt.
+Att sätta target här betyder att du plockar ut ~max av fördelningen — varje krona därutöver är extremt dyrköpt sannolikhetsmässigt.
 
 ### Är strategin lönsam?
 
@@ -145,7 +142,7 @@ En strategi kan ha **låg/negativ Win Rate men positivt EV** om de få vinsterna
 - **Win Rate:** 40% (40 av 100 i vinst)
 - **EV:** `(60 × -3%) + (15 × +4%) + (25 × +15%) = +2.55%` per trade
 
-Strategin förlorar 60% av gångerna, men de 25 trades där trenden drar iväg kompenserar för alla små förluster. Stop-lossen begränsar nedsidan till ett känt belopp, medan uppsidan är obegränsad. Därför är EV det viktigaste måttet — det säger vad du tjänar *över tid*.
+Strategin förlorar 60% av gångerna, men de 25 trades där trenden drar iväg kompenserar för alla små förluster — samma fat-tail-effekt som drar upp mean ovan. Därför måste Win Rate alltid läsas ihop med EV, inte isolerat.
 
 ## Modelldiagnostik
 
@@ -167,32 +164,32 @@ Om ett test misslyckas visas en varning (⚠) i rapporten. Simuleringsresultaten
 
 ## Användning
 
-```
-usage: montecarlo.py [-h] [--data-dir DATA_DIR] [--start-price START_PRICE] [--days DAYS] [--paths PATHS] [--target TARGET] [--stop-loss STOP_LOSS]
-                     [--trailing-stop TRAILING_STOP] [--no-trailing] [--short] [--seed SEED] [--lookback LOOKBACK]
-                     ticker
+Fullständig flagg-lista med defaults: `python montecarlo.py --help`. Exempel per scenario:
 
-Monte Carlo Simulation with GARCH
+```bash
+# Standardkörning (lång position)
+python montecarlo.py EQT.ST
 
-positional arguments:
-  ticker                Ticker symbol
+# Egna stop-nivåer — procent eller ATR-multipel
+python montecarlo.py EQT.ST --stop-loss 1.5xatr --trailing-stop 3xatr
 
-options:
-  -h, --help            show this help message and exit
-  --data-dir DATA_DIR   Data directory (default: data)
-  --start-price START_PRICE
-                        Starting price for simulation (default: last close)
-  --days DAYS           Simulation days (default: 20)
-  --paths PATHS         Number of simulation paths (default: 5000)
-  --target TARGET       Target price for probability calc (default: start + 7%)
-  --stop-loss STOP_LOSS
-                        Stop-loss: ATR-multiple (e.g. '2xatr'), percentage (e.g. 0.03 = 3%) or absolute price (e.g. 379). Default: 2xatr
-  --trailing-stop TRAILING_STOP
-                        Trailing stop: ATR-multiple (e.g. '2xatr') or percentage (e.g. 0.03). 0 to disable. Default: 2xatr
-  --no-trailing         Disable trailing stop
-  --short               Simulate a short position (inverted stops and target)
-  --seed SEED           Random seed for reproducibility (default: none)
-  --lookback LOOKBACK   Antal senaste handelsdagar att fitta GARCH på (default: hela historiken)
+# Fast stop utan trailing
+python montecarlo.py EQT.ST --no-trailing
+
+# Egen ingångs- och målkurs
+python montecarlo.py EQT.ST --start-price 315 --target 340
+
+# Kort position — inverterad stop/target-logik
+python montecarlo.py EQT.ST --short --target 295
+
+# Reproducerbar körning (fast seed)
+python montecarlo.py EQT.ST --seed 42
+
+# Stabilare svans-percentiler (fler paths)
+python montecarlo.py EQT.ST --paths 20000
+
+# Regimskifte — begränsa GARCH-fit till senaste N dagar (se nedan)
+python montecarlo.py EQT.ST --lookback 250
 ```
 
 ### `--lookback` — när och varför
